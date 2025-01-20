@@ -1,4 +1,3 @@
-import { NavBar } from '@/components/nav-bar'
 import { HeroSection } from '@/components/hero-section'
 import { StatsSection } from '@/components/stats-section'
 

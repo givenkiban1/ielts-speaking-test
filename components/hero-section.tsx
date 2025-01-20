@@ -10,7 +10,7 @@ export function HeroSection() {
           <h1 className="text-6xl font-bold leading-tight">
             Improve your English.
             <br />
-            It's easypeasy
+            It&apos;s easypeasy
           </h1>
           <Link href="/get-started">
 
@@ -33,7 +33,7 @@ export function HeroSection() {
                 Hi! Ready to speak?
               </div>
               <div className="bg-white rounded-full px-4 py-2 text-sm ml-auto">
-                Let's start!
+                Let&apos;s start!
               </div>
             </div>
           </div>

@@ -11,13 +11,13 @@ import { Timer } from '@/components/Timer';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { TestSession } from '@/types';
 
-type Props = {}
 
-function page({}: Props) {
+function Page() {
 
   const registrationData = getStoredRegistrationData();
   const isDemo = false;
   const router = useRouter();
+  let userEmail: string | null = null;
 
   if (!registrationData) {
     console.log("user not found");
@@ -26,22 +26,23 @@ function page({}: Props) {
     router.push('/get-started');
 
   }
+  else{
+    userEmail = registrationData.email;
+  }
 
   const currentTestSession = getCurrentTestSession();
   
 
-  const { session, setRecording, nextQuestion, updateTimeRemaining, updatePreparation, startTest, loadSession } = useTestStore();
+  const { session, setRecording, nextQuestion, updatePreparation, startTest, loadSession } = useTestStore();
   
   const currentPart = testParts[session.currentPart];
   const currentQuestion = currentPart?.questions[session.currentQuestion];
   const isPreparationPhase = session.isPreparation;
   const [testId, setTestId] = useState<string | null>(null);
 
-  const { startRecording, stopRecording, audioUrl } = useAudioRecorder();
+  const { startRecording, stopRecording } = useAudioRecorder();
 
   useEffect(()=>{
-    console.log("current part ", session.currentPart);
-    console.log("current question", session.currentQuestion);
 
     if (currentTestSession) {
       console.log("test session found");
@@ -58,11 +59,11 @@ function page({}: Props) {
       console.log("generating new test id");
   
       const timestamp = new Date().getTime();
-      const testId = `${registrationData.email}_${timestamp}`;
+      const testId = `${userEmail}_${timestamp}`;
       setTestId(testId);
     }
 
-  }, []);
+  }, [currentTestSession, loadSession, userEmail]);
 
 
   const handleRecordToggle = async () => {
@@ -105,16 +106,6 @@ function page({}: Props) {
     nextQuestion();
   };
 
-  const handleTimerComplete = () => {
-    updatePreparation(false);
-    if (isPreparationPhase) {
-      setRecording(true);
-    } else if (session.isRecording) {
-      setRecording(false);
-      nextQuestion();
-    }
-  };
-
   const handleReset = () => {
     // Clear all stored items from this test session
     if (testId)
@@ -132,7 +123,7 @@ function page({}: Props) {
     });
 
     // Force reload the page to ensure clean state
-    window.location.reload();
+    router.refresh();
   };
 
   return (
@@ -272,4 +263,4 @@ function page({}: Props) {
   )
 }
 
-export default page
+export default Page

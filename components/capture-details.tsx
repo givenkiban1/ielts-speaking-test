@@ -47,7 +47,7 @@ export function IeltsRegistrationForm({ className }: React.ComponentProps<typeof
   return (
     <Card className={cn('w-full max-w-md text-start', className)}>
       <CardHeader>
-        <CardTitle>Let's Get to Know You</CardTitle>
+        <CardTitle>Let&apos;s Get to Know You</CardTitle>
         <CardDescription>
           Tell us about yourself to personalize your IELTS online test experience.
         </CardDescription>

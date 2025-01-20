@@ -5,9 +5,7 @@ import { getStoredRegistrationData } from '@/lib/actions'
 import React, { useEffect } from 'react'
 import { useRouter } from "next/navigation"
 
-type Props = {}
-
-function page({}: Props) {
+function Page() {
 
   const router = useRouter();
 
@@ -28,7 +26,7 @@ function page({}: Props) {
         
         <div className="max-w-2xl mx-auto px-4 py-16 text-center">
           <h1 className='text-4xl font-bold'>Ready To Take Your Test ?</h1>
-          <h3 className='text-xl font-bold mt-3'>Let's Get Some Info from you first</h3>
+          <h3 className='text-xl font-bold mt-3'>Let&apos;s Get Some Info from you first</h3>
 
           <br />
 
@@ -38,4 +36,4 @@ function page({}: Props) {
   )
 }
 
-export default page
+export default Page

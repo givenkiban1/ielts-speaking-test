@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { getCurrentTestSession } from '@/lib/actions';
 import { testParts } from '@/data/testData';
 import { useRouter } from 'next/navigation';
+import { TestSession } from '@/types';
 
 interface RecordingMetadata {
   timestamp: string;
@@ -17,14 +18,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState<{[key: string]: boolean}>({});
   const [recordings, setRecordings] = useState<{[key: string]: boolean}>({});
   const [metadata, setMetadata] = useState<{[key: string]: RecordingMetadata}>({});
-  const [testSession, setTestSession] = useState<any>(null);
-  const [isClient, setIsClient] = useState(false);
+  const [testSession, setTestSession] = useState<TestSession | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasProcessedResults, setHasProcessedResults] = useState(false);
 
   useEffect(() => {
-    // Set isClient to true once component mounts
-    setIsClient(true);
     
     // Get test session
     const session = getCurrentTestSession();
@@ -72,11 +70,6 @@ export default function Dashboard() {
       hour: '2-digit',
       minute: '2-digit',
     }).format(date);
-  };
-
-  const getRecordingMetadata = (audioKey: string): RecordingMetadata | null => {
-    const metadata = localStorage.getItem(`${audioKey}_metadata`);
-    return metadata ? JSON.parse(metadata) : null;
   };
 
   const handleTranscribe = async (partIndex: number, questionIndex: number) => {

@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { NavBar } from '@/components/nav-bar'
 import { Button } from '@/components/ui/button'
 import { BookOpen, Home, Search } from 'lucide-react'
 
@@ -11,7 +10,7 @@ export default function NotFound() {
           <h1 className="text-6xl font-bold mb-4">404</h1>
           <h2 className="text-3xl font-semibold mb-4">Oops! Page not found</h2>
           <p className="text-xl mb-8">
-            It seems you've wandered off the learning path. Don't worry, it's easypeasy to get back on track!
+            It seems you&apos;ve wandered off the learning path. Don&apos;t worry, it&apos;s easypeasy to get back on track!
           </p>
           <div className="grid gap-4 md:grid-cols-3">
             <Button asChild variant="outline" className="flex items-center justify-center gap-2">
