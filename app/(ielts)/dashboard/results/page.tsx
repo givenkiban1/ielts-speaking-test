@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { pdf } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { getStoredRegistrationData } from '@/lib/actions';
+
 
 interface Score {
   fluency_coherence: number;
@@ -20,6 +24,8 @@ interface ResponseFeedback {
 interface ResponseAnalysis {
   part: number;
   question: number;
+  question_text: string;
+  answer_text: string;
   scores: Score;
   feedback: ResponseFeedback;
 }
@@ -36,8 +42,62 @@ interface TestResults {
   };
 }
 
+const pdfStyles = StyleSheet.create({
+  page: { padding: 40 },
+  title: { fontSize: 24, marginBottom: 20 },
+  section: { marginBottom: 15 },
+  heading: { fontSize: 18, marginBottom: 10 },
+  subheading: { fontSize: 14, marginBottom: 5 },
+  text: { fontSize: 12, marginBottom: 5 },
+  scoreGrid: { flexDirection: 'row', gap: 20, marginBottom: 15 },
+  scoreBox: { border: '1px solid black', padding: 10, flex: 1 },
+});
+
+const ResultsPDF = ({ results, userName }: { results: TestResults; userName: string }) => (
+  <Document>
+    <Page size="A4" style={pdfStyles.page}>
+      <Text style={pdfStyles.title}>IELTS Speaking Test Results - {userName}</Text>
+      
+      <View style={pdfStyles.section}>
+        <Text style={pdfStyles.heading}>Overall Score: {results.overall_score.toFixed(1)}/9</Text>
+        <Text style={pdfStyles.text}>{results.overall_feedback}</Text>
+      </View>
+
+      <View style={pdfStyles.scoreGrid}>
+        {Object.entries(results.responses[0].scores).map(([key, value]) => (
+          <View key={key} style={pdfStyles.scoreBox}>
+            <Text style={pdfStyles.subheading}>{key.replace('_', ' ').toUpperCase()}</Text>
+            <Text>{value.toFixed(1)}/9</Text>
+          </View>
+        ))}
+      </View>
+
+      {results.responses.map((response, index) => (
+        <View key={index} style={pdfStyles.section}>
+          <Text style={pdfStyles.heading}>Part {response.part}, Question {response.question}</Text>
+          <Text style={pdfStyles.subheading}>Question:</Text>
+          <Text style={pdfStyles.text}>{response.question_text}</Text>
+          <Text style={pdfStyles.subheading}>Your Answer:</Text>
+          <Text style={pdfStyles.text}>{response.answer_text}</Text>
+          
+          <Text style={pdfStyles.subheading}>Strengths:</Text>
+          {response.feedback.strengths.map((item, i) => (
+            <Text key={i} style={pdfStyles.text}>• {item}</Text>
+          ))}
+          
+          <Text style={pdfStyles.subheading}>Areas for Improvement:</Text>
+          {response.feedback.areas_for_improvement.map((item, i) => (
+            <Text key={i} style={pdfStyles.text}>• {item}</Text>
+          ))}
+        </View>
+      ))}
+    </Page>
+  </Document>
+);
+
 export default function ResultsPage() {
   const [results, setResults] = useState<TestResults | null>(null);
+  const [userName, setUserName] = useState<string>('');
   const router = useRouter();
 
   useEffect(() => {
@@ -45,7 +105,27 @@ export default function ResultsPage() {
     if (savedResults) {
       setResults(JSON.parse(savedResults));
     }
+
+    const storedRegistrationData = getStoredRegistrationData();
+    if (storedRegistrationData) {
+      setUserName(storedRegistrationData.name + ' ' + storedRegistrationData.surname);
+    }
+
   }, []);
+
+  const generatePDF = async () => {
+    if (!results) return;
+    
+    const blob = await pdf(<ResultsPDF results={results} userName={userName} />).toBlob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `IELTS_Speaking_Results_${userName.replaceAll(' ', '_')}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   if (!results) {
     return (
@@ -56,7 +136,7 @@ export default function ResultsPage() {
             onClick={() => router.push('/dashboard')}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            Return to Dashboard
+            Back to Dashboard
           </button>
         </div>
       </div>
@@ -94,12 +174,20 @@ export default function ResultsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">Speaking Test Results</h1>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Back to Dashboard
-          </button>
+          <div className="space-x-4">
+            <button
+              onClick={generatePDF}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Export PDF
+            </button>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Back to Dashboard
+            </button>
+          </div>
         </div>
 
         {/* Overall Score */}
