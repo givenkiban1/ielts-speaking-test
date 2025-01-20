@@ -15,7 +15,7 @@ import { TestSession } from '@/types';
 function Page() {
 
   const registrationData = getStoredRegistrationData();
-  const isDemo = false;
+  const isDemo = true;
   const router = useRouter();
   let userEmail: string | null = null;
 
@@ -63,7 +63,7 @@ function Page() {
       setTestId(testId);
     }
 
-  }, [currentTestSession, loadSession, userEmail]);
+  }, []);
 
 
   const handleRecordToggle = async () => {
